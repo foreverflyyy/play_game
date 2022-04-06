@@ -1,28 +1,21 @@
 #pragma once
-#include <iostream>
 #include <SFML/Graphics.hpp>
-#include <math.h>
+#include <vector>
 
-namespace nu
-{
-	class Grib
-	{
-	public:
-        Grib(int x, int y, float r);
-		~Grib();
+namespace nu {
+    class Grib {
+    public:
+        Grib(int x, int y, int r, float speed);
+        sf::Sprite* Get();
+        void Move();
+        void SetY(int y);
+        int GetY();
+        void SetVelocity(int speed);
 
-		bool Setup();
-
-		sf::Sprite* Get();
-		int GetX();
-		int GetY();
-		float GetR();
-
-	private:
-		int m_x, m_y;
-		float m_r;
-
-		sf::Texture m_texture;
-		sf::Sprite* m_grib = nullptr;
-	};
+    private:
+        int m_x, m_y, m_r;
+        float m_speed;
+        sf::Texture m_texture;
+        sf::Sprite* m_grib = nullptr;
+    };
 }
