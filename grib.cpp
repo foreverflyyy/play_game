@@ -26,9 +26,11 @@ namespace nu {
         m_y = y;
         m_grib->setPosition(m_x, m_y);
     }
-    int Grib::GetY() { return m_y; }
     void Grib::SetVelocity(int speed){
         m_speed = speed;
     }
     sf::Sprite* Grib::Get() { return m_grib; }
+    int Grib::GetX() { return m_x; }
+    int Grib::GetY() { return m_y; }
+    float Grib::GetR() { return m_r; }
 };

@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iostream>
 #include <math.h>
+#include <windows.h>
 
 using namespace std::chrono_literals;
 
@@ -13,7 +14,12 @@ int main() {
     const int width = 760;
     const int height = 428;
     const int N = 10;
-    float time = 10;
+    float time = 30;
+    int s_x = 10;
+    int s_y = 300;
+    int score = 0;
+    bool lose = false;
+    bool win = false;
 
     sf::Texture texture;
     if (!texture.loadFromFile("img/back.jpg"))
@@ -22,7 +28,7 @@ int main() {
     }
 
     nu::Mario* mario = nullptr;
-    mario = new nu::Mario(10, 300, 20);
+    mario = new nu::Mario(s_x, s_y, 20);
 
     std::vector<nu::Grib*> gribs;
     for (int i = 0; i <= width; i += width / N)
@@ -33,18 +39,40 @@ int main() {
         std::cout << "ERROR: font was not loaded." << std::endl;
         return -1;
     }
-    sf::Text text;
-    text.setFont(font);
-    text.setString("Hello world");
-    text.setCharacterSize(24);
-    text.setFillColor(sf::Color::Red);
+    sf::Text text_time;
+    text_time.setFont(font);
+    text_time.setCharacterSize(24);
+    text_time.setFillColor(sf::Color::Blue);
+
+    sf::Text text_score;
+    text_score.setFont(font);
+    text_score.setCharacterSize(24);
+    text_score.setPosition(200, 0);
+    text_score.setFillColor(sf::Color::Blue);
+
+//    sf::Text text_start;
+//    text_score.setFont(font);
+//    text_score.setCharacterSize(24);
+//    text_score.setPosition(280, 200);
+//    text_score.setFillColor(sf::Color::Blue);
+
+    sf::Text text_lose;
+    text_lose.setFont(font);
+    text_lose.setCharacterSize(36);
+    text_lose.setPosition(280, 200);
+    text_lose.setFillColor(sf::Color::Red);
+
+    sf::Text text_win;
+    text_win.setFont(font);
+    text_win.setCharacterSize(36);
+    text_win.setPosition(200, 200);
+    text_win.setFillColor(sf::Color::Blue);
 
     // Добавление иконки
 //    sf::Image icon;
 //    if (!icon.loadFromFile("img/bird32.png"))
 //        return -1;
 //    window.setIcon(32, 32, icon.getPixelsPtr());
-
 
     sf::RenderWindow window(sf::VideoMode(width, height), "Mario return!");
     while (window.isOpen())
@@ -64,25 +92,74 @@ int main() {
                 grib->SetY(0);
             }
         }
-        
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+            mario->MoveLeft();
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            mario->MoveRight();
+//        else if (sf::Keyboard::isKeyPressed(sf::Keyboard:: Up)){
+//            mario->MoveUp();
+//        }
+
+        // Проверка столкновения
+        for (int i = 0; i < gribs.size(); i++)
+        {
+            int X = mario->GetX();
+            int Y = mario->GetY();
+            float R = mario->GetR();
+
+            int x = gribs[i]->GetX();
+            int y = gribs[i]->GetY();
+            float r = gribs[i]->GetR();
+
+            float d = sqrt((X-x)*(X-x) + (Y-y)*(Y-y));
+
+            if (R + r >= d)
+            {
+                lose = true;
+                std::cout << "You loser!";
+                //window.close();
+//                delete gribs[i];
+//                gribs.erase(gribs.begin() + i);
+//                i--;
+            }
+        }
+
+
+
 
         window.clear();
 
         sf::Sprite sprite;
         sprite.setTexture(texture);
         window.draw(sprite);
-        text.setString(std::string("Time: ") + std::to_string(round(time*100)/100));
-        window.draw(text);
+
+        text_time.setString(std::string("Time: ") + std::to_string(int(time*100)/100));
+        window.draw(text_time);
+
+        text_score.setString(std::string("Score: ") + std::to_string(score));
+        window.draw(text_score);
+
+        if(lose && !win) {
+            text_lose.setString(std::string("You loser! "));
+            window.draw(text_lose);
+        }
+        if(win && !lose) {
+            text_win.setString(std::string("You win! Congratulations! "));
+            window.draw(text_win);
+        }
+
         window.draw(*mario->Get());
         for(const auto& grib : gribs)
             window.draw(*grib->Get());
         window.display();
 
         // https://ravesli.com/urok-129-tajming-koda-vremya-vypolneniya-programmy/
-        std::this_thread::sleep_for(20ms);
-        time -= 0.02;
-        if(time == 0)
-            window.close();
+        std::this_thread::sleep_for(40ms);
+            time -= 0.04;
+        if(time <= 0){
+            win = true;
+            time = 0;
+        }
     }
     for (const auto& grib : gribs)
         delete grib;

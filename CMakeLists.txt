@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 
-add_definitions(-DSFML_STATIC)		 # дефайны
+add_definitions(-DSFML_STATIC)		 # дефайн
 
 include_directories("inc/")
 include_directories("SFML/include/")	# добавляем директории
