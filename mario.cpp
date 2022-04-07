@@ -18,4 +18,12 @@ namespace nu {
             m_mario->setScale(0.5, 0.5);
         }
         sf::Sprite* Mario::Get() { return m_mario; }
+    void Mario::MoveRight(){
+        m_x += 10;
+        m_mario->setPosition(m_x, m_y);
+    }
+    void Mario::MoveLeft(){
+        m_x -= 10;
+        m_mario->setPosition(m_x, m_y);
+    }
     };

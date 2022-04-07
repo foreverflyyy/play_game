@@ -64,7 +64,11 @@ int main() {
                 grib->SetY(0);
             }
         }
-        
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+            mario->MoveLeft();
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            mario->MoveRight();
+
 
         window.clear();
 
