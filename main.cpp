@@ -6,7 +6,6 @@
 #include <chrono>
 #include <iostream>
 #include <math.h>
-#include <windows.h>
 
 using namespace std::chrono_literals;
 
@@ -17,9 +16,12 @@ int main() {
     float time = 30;
     int s_x = 10;
     int s_y = 300;
-    int score = 0;
+    //int score = 0;
     bool lose = false;
     bool win = false;
+    bool start = false;
+
+    sf::RenderWindow window(sf::VideoMode(width, height), "Mario return!");
 
     sf::Texture texture;
     if (!texture.loadFromFile("img/back.jpg"))
@@ -44,17 +46,23 @@ int main() {
     text_time.setCharacterSize(24);
     text_time.setFillColor(sf::Color::Blue);
 
-    sf::Text text_score;
-    text_score.setFont(font);
-    text_score.setCharacterSize(24);
-    text_score.setPosition(200, 0);
-    text_score.setFillColor(sf::Color::Blue);
-
-//    sf::Text text_start;
+//    sf::Text text_score;
 //    text_score.setFont(font);
 //    text_score.setCharacterSize(24);
-//    text_score.setPosition(280, 200);
+//    text_score.setPosition(200, 0);
 //    text_score.setFillColor(sf::Color::Blue);
+
+    sf::Text text_start;
+    text_start.setFont(font);
+    text_start.setCharacterSize(24);
+    text_start.setPosition(600, 0);
+    text_start.setFillColor(sf::Color::Blue);
+
+    sf::Text text_exit;
+    text_exit.setFont(font);
+    text_exit.setCharacterSize(24);
+    text_exit.setPosition(700, 0);
+    text_exit.setFillColor(sf::Color::Blue);
 
     sf::Text text_lose;
     text_lose.setFont(font);
@@ -69,12 +77,11 @@ int main() {
     text_win.setFillColor(sf::Color::Blue);
 
     // Добавление иконки
-//    sf::Image icon;
-//    if (!icon.loadFromFile("img/bird32.png"))
-//        return -1;
-//    window.setIcon(32, 32, icon.getPixelsPtr());
+    sf::Image icon;
+    if (!icon.loadFromFile("img/paper_mario.png"))
+        return -1;
+    window.setIcon(32, 32, icon.getPixelsPtr());
 
-    sf::RenderWindow window(sf::VideoMode(width, height), "Mario return!");
     while (window.isOpen())
     {
         sf::Event event;
@@ -83,48 +90,65 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-        for (const auto& grib : gribs)
-        {
-            grib->Move();
-            if (grib->GetY() > height)
-            {
-                grib->SetVelocity(rand() % 5 + 1);
-                grib->SetY(0);
+        if(start && !lose && !win) {
+            for (const auto &grib: gribs) {
+                grib->Move();
+                if (grib->GetY() > height) {
+                    grib->SetVelocity(rand() % 5 + 1);
+                    grib->SetY(0);
+                }
             }
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-            mario->MoveLeft();
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-            mario->MoveRight();
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+                mario->MoveLeft();
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+                mario->MoveRight();
 //        else if (sf::Keyboard::isKeyPressed(sf::Keyboard:: Up)){
 //            mario->MoveUp();
 //        }
 
-        // Проверка столкновения
-        for (int i = 0; i < gribs.size(); i++)
-        {
-            int X = mario->GetX();
-            int Y = mario->GetY();
-            float R = mario->GetR();
+            // Проверка столкновения
+            for (int i = 0; i < gribs.size(); i++) {
+                int X = mario->GetX();
+                int Y = mario->GetY();
+                float R = mario->GetR();
 
-            int x = gribs[i]->GetX();
-            int y = gribs[i]->GetY();
-            float r = gribs[i]->GetR();
+                int x = gribs[i]->GetX();
+                int y = gribs[i]->GetY();
+                float r = gribs[i]->GetR();
 
-            float d = sqrt((X-x)*(X-x) + (Y-y)*(Y-y));
+                float d = sqrt((X - x) * (X - x) + (Y - y) * (Y - y));
 
-            if (R + r >= d)
-            {
-                lose = true;
-                std::cout << "You loser!";
-                //window.close();
+                if (R + r >= d) {
+                    lose = true;
+                    std::cout << "You loser!";
+                    //window.close();
 //                delete gribs[i];
 //                gribs.erase(gribs.begin() + i);
 //                i--;
+                }
             }
         }
 
-
+        sf::Vector2i localPosition = sf::Mouse::getPosition(window);
+        if(localPosition.x >= 695 && localPosition.x <= 740 && localPosition.y <= 30){
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+                window.close();
+            }
+        }
+        sf::Vector2i localPosition2 = sf::Mouse::getPosition(window);
+        if(localPosition.x >= 595 && localPosition.x <= 640 && localPosition.y <= 30){
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+                start = true;
+                lose = false;
+                win = false;
+                time = 30;
+                for (const auto &grib: gribs) {
+                        grib->SetVelocity(rand() % 5 + 1);
+                        grib->SetY(0);
+                }
+                mario->SetX(0);
+            }
+        }
 
 
         window.clear();
@@ -133,30 +157,35 @@ int main() {
         sprite.setTexture(texture);
         window.draw(sprite);
 
-        text_time.setString(std::string("Time: ") + std::to_string(int(time*100)/100));
-        window.draw(text_time);
-
-        text_score.setString(std::string("Score: ") + std::to_string(score));
-        window.draw(text_score);
-
-        if(lose && !win) {
-            text_lose.setString(std::string("You loser! "));
-            window.draw(text_lose);
+        if(start) {
+            text_time.setString(std::string("Time: ") + std::to_string(int(time * 100) / 100));
+            window.draw(text_time);
+//            text_score.setString(std::string("Score: ") + std::to_string(score));
+//            window.draw(text_score);
+            window.draw(*mario->Get());
+            for (const auto &grib: gribs)
+                window.draw(*grib->Get());
+            if (lose && !win) {
+                text_lose.setString(std::string("You loser! "));
+                window.draw(text_lose);
+            }
+            if (win && !lose) {
+                text_win.setString(std::string("You win! Congratulations! "));
+                window.draw(text_win);
+            }
         }
-        if(win && !lose) {
-            text_win.setString(std::string("You win! Congratulations! "));
-            window.draw(text_win);
-        }
 
-        window.draw(*mario->Get());
-        for(const auto& grib : gribs)
-            window.draw(*grib->Get());
+        text_start.setString(std::string("Start"));
+        window.draw(text_start);
+
+        text_exit.setString(std::string("Exit"));
+        window.draw(text_exit);
+
         window.display();
-
         // https://ravesli.com/urok-129-tajming-koda-vremya-vypolneniya-programmy/
         std::this_thread::sleep_for(40ms);
-            time -= 0.04;
-        if(time <= 0){
+        if(start && !lose && !win) time -= 0.04;
+        if(start && time <= 0){
             win = true;
             time = 0;
         }

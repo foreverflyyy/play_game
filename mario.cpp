@@ -42,6 +42,10 @@ namespace nu {
 //        }
 
     }
+    void Mario::SetX(int x){
+        m_x = x;
+        m_mario->setPosition(m_x, m_y);
+    }
     int Mario::GetX() { return m_x; }
     int Mario::GetY() { return m_y; }
     float Mario::GetR() { return m_r; }

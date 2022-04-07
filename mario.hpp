@@ -15,7 +15,7 @@ namespace nu {
         int GetX();
         int GetY();
         float GetR();
-
+        void SetX(int x);
 
     private:
         int m_x, m_y, m_r;
